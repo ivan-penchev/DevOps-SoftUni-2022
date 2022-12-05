@@ -53,7 +53,7 @@ scoop install vagrant
 
    You could go to the adress and you should see something like:
 
-   ![image-20221205170935167](.\image-20221205170935167.png)
+   ![image-20221205170935167](image-20221205170935167.png)
 
 # Steps Solution Task 2
 
@@ -96,4 +96,4 @@ webserver_public_ip = "http://20.105.202.209"
 
 Afterward we could just enter the webserver public IP and we should see something like:
 
-![image-20221205173000917](.\image-20221205173000917.png)
+![image-20221205173000917](image-20221205173000917.png)
