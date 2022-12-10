@@ -1,0 +1,21 @@
+---
+- hosts: webservers
+  become: true
+
+  vars:
+    pip_install_packages:
+      - name: docker
+
+  roles:
+     - geerlingguy.docker
+     - geerlingguy.pip
+
+  tasks:
+    - name: Start NGINX Docker Container
+      community.docker.docker_container:
+        name: con_nginx
+        image: nginx
+        ports:
+          - "80:80"
+        state: started
+        detach: yes

@@ -1,0 +1,46 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# How to
+# vagrant up ansible docker # Assignment 1
+# vagrant destroy docker --force
+# vagrant up web db # Assignment 2
+# vagrant destroy --force
+#
+# Ip Range
+# 192.168.150.100/103
+#
+# hostnames
+# ansible.do2.homework
+# docker.do2.homework
+# web.do2.homework
+# db.do2.homework
+
+Vagrant.configure(2) do |config|
+    
+  config.ssh.insert_key = false
+
+    # Main working host
+  config.vm.define "ansible" do |ansible|
+    ansible.vm.box = "shekeriev/centos-stream-8"
+    ansible.vm.hostname = "ansible.do2.homework"
+    ansible.vm.network "private_network", ip: "192.168.150.100"
+    ansible.vm.provision "shell", path: "scripts/install-ansible-centos-stream.sh"
+    ansible.vm.provider :virtualbox do |vb|
+      vb.memory = 2048
+      vb.cpus = 1
+    end
+  end
+
+  config.vm.define "docker" do |docker|
+    docker.vm.box = "shekeriev/centos-stream-8"
+    docker.vm.hostname = "docker.do2.homework"
+    docker.vm.network "private_network", ip: "192.168.150.101"
+    docker.vm.network "forwarded_port", guest: 80, host: 8081
+    docker.vm.provider :virtualbox do |vb|
+      vb.memory = 512
+      vb.cpus = 1
+    end
+  end
+
+end
