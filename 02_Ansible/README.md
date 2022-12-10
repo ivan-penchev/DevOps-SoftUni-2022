@@ -55,5 +55,8 @@ You could go to the of your web vm http://192.168.150.101/ (remember this is har
 
 ![image-20221209234052124](image-20221209234052124.png)
 
+### EASTER EGG INCLUDED, if you want to see it, you must change the playbook.yml file, specifically the variables `install_easter_egg`
+
+
 # Steps Solution Task 2
 

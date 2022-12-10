@@ -5,17 +5,31 @@
   vars:
     pip_install_packages:
       - name: docker
+    instal_easter_egg: false
 
   roles:
      - geerlingguy.docker
      - geerlingguy.pip
 
   tasks:
+    - name: Set easter egg volumes list
+      set_fact:
+        volumes:
+           - "/var/www/html:/usr/share/nginx/html:ro"
+      when: instal_easter_egg == true
+
     - name: Start NGINX Docker Container
       community.docker.docker_container:
         name: con_nginx
         image: nginx
+        volumes: "{{ volumes | default('/usr/share/nginx/html') }}" 
         ports:
           - "80:80"
         state: started
         detach: yes
+
+    - name: Copy files 
+      copy:
+         src: "/vagrant/share/index.html"
+         dest: "/var/www/html/"
+      when: instal_easter_egg == true
