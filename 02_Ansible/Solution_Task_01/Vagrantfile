@@ -1,20 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# How to
-# vagrant up ansible docker # Assignment 1
-# vagrant destroy docker --force
-# vagrant up web db # Assignment 2
-# vagrant destroy --force
-#
-# Ip Range
-# 192.168.150.100/103
-#
-# hostnames
-# ansible.do2.homework
-# docker.do2.homework
-# web.do2.homework
-# db.do2.homework
 
 Vagrant.configure(2) do |config|
     
