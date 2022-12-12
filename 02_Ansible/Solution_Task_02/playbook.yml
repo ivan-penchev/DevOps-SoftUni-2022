@@ -1,0 +1,59 @@
+---
+- hosts: webservers
+  become: true
+
+  vars:
+    pip_install_packages:
+      - name: docker
+    php_enable_php_fpm: true
+    php_packages_extra:
+      - libapache2-mod-php7.4
+
+  roles:
+    - geerlingguy.apache
+    - geerlingguy.php
+    - geerlingguy.php-mysql
+    
+
+  tasks:
+    - name: Update Hosts
+      shell: "{{item}}"
+      with_items:
+        - echo "192.168.150.112 db.do2.homework db" >> /etc/hosts
+  
+    - name: Delete content & directory
+      file:
+         state: absent
+         path: /var/www/html/
+
+    - name: "Copy Source Files"
+      copy:
+        src: /vagrant/share/web/
+        dest: /var/www/html/
+
+- hosts: databases
+  become: true
+
+  roles:
+    - install-mariadb
+    
+  tasks:
+    - name: Check if database is created (i.e. it does not exist)!
+      mysql_db:
+         name: "bulgaria"
+         state: present
+      register: database_created
+    - debug: var=database_created
+
+    - name: Delete the initial database created by the existing check
+      mysql_db:
+         name: "bulgaria"
+         state: absent
+      when: database_created.changed
+
+    - name: Seed database
+      mysql_db:
+        state: import
+        name: all
+        target: /vagrant/share/db/db_setup.sql
+      when: database_created.changed

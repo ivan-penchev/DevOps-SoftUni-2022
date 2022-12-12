@@ -1,0 +1,4 @@
+roles:
+- geerlingguy.apache
+- geerlingguy.php
+- geerlingguy.php-mysql

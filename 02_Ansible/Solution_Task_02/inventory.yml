@@ -1,0 +1,14 @@
+webservers:
+  hosts:
+    web:
+      ansible_host: 192.168.150.111
+  vars:
+    ansible_ssh_pass: vagrant
+    ansible_user: vagrant
+databases:
+  hosts:
+    db:
+      ansible_host: 192.168.150.112
+  vars:
+    ansible_ssh_pass: vagrant
+    ansible_user: vagrant

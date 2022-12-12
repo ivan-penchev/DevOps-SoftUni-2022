@@ -1,0 +1,21 @@
+- name: "Install MariaDb - RedHat"
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items: 
+    - mariadb-server
+    - python3-PyMySQL ## Used for ansible interaction with MYSQL
+
+
+- name: "Enable MariaDb - RedHat"
+  service:
+    name: mariadb.service
+    enabled: yes
+    state: restarted
+
+- name: Allow DB service in the firewall
+  firewalld:
+    port: 3306/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled

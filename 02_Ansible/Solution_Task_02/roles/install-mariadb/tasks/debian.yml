@@ -1,0 +1,13 @@
+- name: "Install MariaDb - Debian"
+  apt:
+    name: "{{item}}"
+    state: present
+  with_items: 
+    - mariadb-server
+    - python3-PyMySQL ## Used for ansible interaction with MYSQL
+
+- name: "Enable MariaDb - Debian"
+  service:
+    name: mariadb
+    enabled: yes
+    state: restart
