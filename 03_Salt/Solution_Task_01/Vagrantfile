@@ -1,0 +1,86 @@
+Vagrant.configure("2") do |config|
+
+  # Salt version to install
+  salt_version = "3004"
+
+  # minions local subnet
+  # needs to be changed in pillar/mine.sls
+  net_ip = "192.168.150"
+  
+  config.ssh.insert_key = false
+
+  os_cent = "centos/7" 
+  os_debian = "shekeriev/debian-11"
+
+  # Move salt files to all systems to be run locally
+  config.vm.provision "shell", inline: "chown vagrant /srv"
+  config.vm.provision "file", source: "salt", destination: "/srv/salt"
+  config.vm.provision "file", source: "pillar", destination: "/srv/pillar"
+
+  config.vm.define "saltmaster", primary: true do |sm|
+    sm.vm.box = "#{os_debian}"
+    sm.vm.host_name = 'saltmaster.vagrant.lan'
+    sm.vm.network "private_network", ip: "#{net_ip}.100"
+
+    # Change master hardware specs here
+    config.vm.provider "virtualbox" do |v|
+      v.memory = 3048
+      v.cpus = 2
+      v.name = "saltmaster"
+    end
+
+    # We just use the salt provisioner to install and configure salt
+    sm.vm.provision :salt do |salt|
+      salt.install_master = true
+      salt.verbose = true
+      salt.colorize = true
+      salt.install_type = "stable"
+      salt.version = salt_version
+      salt.bootstrap_options = "-X -c /tmp -A #{net_ip}.100 -i saltmaster -x python3"
+    end
+
+    # We call salt-call --local to configure the saltmaster
+    sm.vm.provision "shell", inline: "salt-call --local state.apply setup_master"
+
+  end
+
+  ## Declare needed minions
+  ## Structure consists of:
+  # Minion type (string), Memory used by VM (String), OS used by VM (String)
+  [
+    # ["minion",  "1024",    os_cent ],
+    # ["minion",  "1024",    os_cent ],
+    ["docker",   "1024",    os_cent],
+  ].each_with_index do |element, index|
+
+    (vmtype,mem,os) = element
+    current_count=index+1
+    vmname = "#{vmtype}#{current_count}"
+    ip = "#{net_ip}.10#{current_count}"
+
+    config.vm.define "#{vmname}" do |minion_config|
+      minion_config.vm.provider "virtualbox" do |vb|
+          vb.memory = "#{mem}"
+          vb.cpus = 1
+          vb.name = "#{vmname}"
+      end
+
+      minion_config.vm.box = "#{os}"
+      minion_config.vm.hostname = "#{vmname}"
+      minion_config.vm.network "private_network", ip: "#{ip}"
+
+      minion_config.vm.provision :salt do |salt|
+        salt.install_master = false
+        salt.verbose = true
+        salt.colorize = true
+        salt.install_type = "stable"
+        salt.version = salt_version
+        salt.bootstrap_options = "-X -c /tmp -A #{net_ip}.100 -i #{vmname} -x python3"
+      end
+
+      # We call salt-call --local to configure each minion
+      minion_config.vm.provision "shell", inline: "salt-call --local state.apply setup_minion"
+    end
+
+  end
+end
